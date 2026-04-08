@@ -1,8 +1,8 @@
 # Polymarket Trading Platform
 
-A 12-service automated trading system for [Polymarket](https://polymarket.com) prediction markets, running multiple strategies simultaneously — from sub-second arbitrage scanning to Bayesian sports modeling. Built with Rust and TypeScript, orchestrated via Docker Compose, with a real-time Bloomberg terminal-style dashboard.
+**Deployment template** — this repo ships **no** accounts, wallets, or API secrets. Fork or clone it, copy [`.env.example`](.env.example) to `.env`, and fill in **your** Polygon RPC, Gnosis Safe, Polymarket CLOB credentials, dashboard password, and optional GCP settings. Behavior is strategy-agnostic: the same layout runs paper or live depending on your env flags.
 
-This started as a box spread arbitrage bot and grew into a multi-strategy platform handling live capital on Polygon L2.
+A 12-service automated trading system for [Polymarket](https://polymarket.com) prediction markets, running multiple strategies simultaneously — from sub-second arbitrage scanning to Bayesian sports modeling. Built with Rust and TypeScript, orchestrated via Docker Compose, with a real-time terminal-style dashboard.
 
 ## Architecture
 
@@ -122,12 +122,12 @@ Key features:
 ### Setup
 
 ```bash
-git clone https://github.com/dantraynor/algorithmic-trading-polymarket.git
-cd algorithmic-trading-polymarket
+git clone https://github.com/<your-org>/<your-repo>.git
+cd <your-repo>
 
 # Configure credentials
 cp .env.example .env
-# Edit .env: PRIVATE_KEY, GNOSIS_SAFE_ADDRESS, POLYGON_RPC_URL
+# Edit .env: PRIVATE_KEY, GNOSIS_SAFE_ADDRESS, POLYGON_RPC_URL, DASHBOARD_API_SECRET (min 16 chars)
 
 # Derive CLOB API keys (must run from the server that will trade)
 cd scripts && npm install && PRIVATE_KEY=0x... node derive-keys.js
