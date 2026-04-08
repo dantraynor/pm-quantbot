@@ -30,13 +30,16 @@ cd /opt/tradingbot
 npm init -y 2>/dev/null || true
 npm install @polymarket/clob-client @ethersproject/wallet
 
-# Run key derivation
-node scripts/derive-keys.js 2>&1 | tee /tmp/derive-output.txt
+# Run key derivation (restricted temp file)
+DERIVE_OUT="$(mktemp)"
+chmod 600 "$DERIVE_OUT"
+trap 'rm -f "$DERIVE_OUT"' EXIT
+node scripts/derive-keys.js 2>&1 | tee "$DERIVE_OUT"
 
 # Extract credentials and update .env
-API_KEY=$(grep "^CLOB_API_KEY=" /tmp/derive-output.txt | cut -d= -f2-)
-API_SECRET=$(grep "^CLOB_API_SECRET=" /tmp/derive-output.txt | cut -d= -f2-)
-PASSPHRASE=$(grep "^CLOB_PASSPHRASE=" /tmp/derive-output.txt | cut -d= -f2-)
+API_KEY=$(grep "^CLOB_API_KEY=" "$DERIVE_OUT" | cut -d= -f2-)
+API_SECRET=$(grep "^CLOB_API_SECRET=" "$DERIVE_OUT" | cut -d= -f2-)
+PASSPHRASE=$(grep "^CLOB_PASSPHRASE=" "$DERIVE_OUT" | cut -d= -f2-)
 
 if [ -n "$API_KEY" ] && [ -n "$API_SECRET" ] && [ -n "$PASSPHRASE" ]; then
     sed -i "s|^CLOB_API_KEY=.*|CLOB_API_KEY=$API_KEY|" /opt/tradingbot/.env

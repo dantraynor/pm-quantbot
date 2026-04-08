@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Panel, SectionHeader } from '@/components/bloomberg';
+import { dashboardFetch } from '@/lib/dashboard-fetch';
 import { STRATEGIES, ALL_STRATEGY_IDS } from '@/lib/strategy-registry';
 import type { CoreStreamState } from '@/lib/types';
 
@@ -58,7 +59,7 @@ export function ControlsPanel({ coreState }: Props) {
     setPendingKeys((prev) => new Set([...prev, key]));
 
     try {
-      await fetch('/api/controls/toggle', {
+      await dashboardFetch('/api/controls/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, enabled: !currentValue }),
@@ -76,7 +77,7 @@ export function ControlsPanel({ coreState }: Props) {
 
   const setParam = useCallback(async (paramKey: string, value: string, resetConfirm: () => void) => {
     try {
-      await fetch('/api/controls/params', {
+      await dashboardFetch('/api/controls/params', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [paramKey]: parseFloat(value) }),

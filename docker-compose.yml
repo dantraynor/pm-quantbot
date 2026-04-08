@@ -1,11 +1,19 @@
 # Base configuration — must be used with an override file:
 #   Dev:  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 #   Prod: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Optional `.env` (copy from `.env.example`): loaded when present; compose still parses without it.
+x-env-file-optional: &env-file-optional
+  env_file:
+    - path: .env
+      required: false
+
 services:
   redis:
     image: redis:7-alpine
     container_name: tradingbot-redis
     user: root
+    # Socket must stay world-accessible (777): appuser/nextjs across services are different UIDs than redis.
     command: >
       sh -c "mkdir -p /var/run/redis && chmod 777 /var/run/redis &&
       exec redis-server
@@ -74,6 +82,7 @@ services:
       - tradingbot
 
   execution:
+    <<: *env-file-optional
     container_name: tradingbot-execution
     depends_on:
       redis:
@@ -87,8 +96,6 @@ services:
       - NODE_ENV=production
     volumes:
       - redis-socket:/var/run/redis
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -99,6 +106,7 @@ services:
       - tradingbot
 
   settlement:
+    <<: *env-file-optional
     container_name: tradingbot-settlement
     depends_on:
       redis:
@@ -111,8 +119,6 @@ services:
       - NODE_ENV=production
     volumes:
       - redis-socket:/var/run/redis
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -123,6 +129,7 @@ services:
       - tradingbot
 
   btc-5m:
+    <<: *env-file-optional
     container_name: tradingbot-btc-5m
     depends_on:
       redis:
@@ -133,8 +140,6 @@ services:
       - NODE_ENV=production
     volumes:
       - redis-socket:/var/run/redis
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -145,6 +150,7 @@ services:
       - tradingbot
 
   btc-5m-momentum:
+    <<: *env-file-optional
     container_name: tradingbot-btc-5m-momentum
     depends_on:
       redis:
@@ -155,8 +161,6 @@ services:
       - NODE_ENV=production
     volumes:
       - redis-socket:/var/run/redis
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -167,6 +171,7 @@ services:
       - tradingbot
 
   btc-5m-latency:
+    <<: *env-file-optional
     container_name: tradingbot-btc-5m-latency
     depends_on:
       redis:
@@ -178,8 +183,6 @@ services:
     volumes:
       - redis-socket:/var/run/redis
       - sqlite-data:/data
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -190,14 +193,13 @@ services:
       - tradingbot
 
   crypto-signals:
+    <<: *env-file-optional
     container_name: tradingbot-crypto-signals
     depends_on:
       redis:
         condition: service_healthy
     volumes:
       - redis-socket:/var/run/redis
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -208,6 +210,7 @@ services:
       - tradingbot
 
   alpha-executor:
+    <<: *env-file-optional
     container_name: tradingbot-alpha-executor
     depends_on:
       redis:
@@ -215,8 +218,6 @@ services:
     volumes:
       - redis-socket:/var/run/redis
       - sqlite-data:/data
-    env_file:
-      - .env
     restart: unless-stopped
     logging:
       driver: json-file
@@ -227,6 +228,7 @@ services:
       - tradingbot
 
   sports-signals:
+    <<: *env-file-optional
     container_name: tradingbot-sports-signals
     restart: unless-stopped
     depends_on:
@@ -235,8 +237,6 @@ services:
     volumes:
       - redis-socket:/var/run/redis
       - sqlite-data:/data
-    env_file:
-      - .env
     networks:
       - tradingbot
     logging:
@@ -246,6 +246,7 @@ services:
         max-file: "3"
 
   dashboard:
+    <<: *env-file-optional
     container_name: tradingbot-dashboard
     restart: unless-stopped
     depends_on:
@@ -254,7 +255,6 @@ services:
     volumes:
       - redis-socket:/var/run/redis
       - sqlite-data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "127.0.0.1:3001:3000"
     environment:

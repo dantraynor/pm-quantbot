@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono } from 'next/font/google';
+import { getAppDisplayName } from '@/lib/branding';
 import './globals.css';
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -9,7 +10,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'DOHA — Trading Terminal',
+  title: getAppDisplayName(),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

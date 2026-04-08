@@ -2,6 +2,8 @@
 
 Thanks for your interest in contributing to the Polymarket trading platform.
 
+The codebase is meant as a **neutral, structured deployment**: every environment brings its own wallets, RPC URLs, and API keys via `.env` — nothing in the tree should assume a specific operator.
+
 ## Getting Started
 
 1. Fork the repo and clone it locally

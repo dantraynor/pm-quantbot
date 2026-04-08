@@ -12,7 +12,13 @@ async function main() {
   try {
     // Load configuration
     const config = await loadConfig();
-    
+
+    if (process.env.NODE_ENV === 'production' && process.env.USE_SECRET_MANAGER !== 'true') {
+      logger.warn(
+        'USE_SECRET_MANAGER is not enabled in production — CLOB and wallet secrets are loaded from the environment',
+      );
+    }
+
     // Validate required config
     if (!config.privateKey) {
       throw new Error('Private key not configured');

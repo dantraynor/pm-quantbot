@@ -116,8 +116,11 @@ docker exec tradingbot-redis redis-cli -s /var/run/redis/redis.sock HGETALL exec
 
 ## Step 7: Start Monitoring
 
+`docker-compose.monitoring.yml` requires `GRAFANA_ADMIN_PASSWORD` (no default). Set it in the shell or in `/opt/tradingbot/.env` before starting the stack.
+
 ```bash
 # On the instance
+export GRAFANA_ADMIN_PASSWORD='your-strong-password'
 cd /opt/tradingbot/infrastructure/monitoring
 docker compose -f docker-compose.monitoring.yml up -d
 

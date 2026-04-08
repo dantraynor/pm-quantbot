@@ -1,0 +1,16 @@
+# Gitleaks: extend defaults; allowlist known false positives from generic-api-key.
+# Re-run after edits: gitleaks git . -c .gitleaks.toml -v
+
+title = "algorithmic-trading-polymarket"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Hardhat/Anvil test key #0; Redis kill-switch key names (not API secrets)"
+regexes = [
+  '''0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80''',
+  '''^BTC_5M_TRADING_ENABLED$''',
+  '''^BTC_5M_LATENCY_TRADING_ENABLED$''',
+  '''^BTC_5M_MOMENTUM_TRADING_ENABLED$''',
+]

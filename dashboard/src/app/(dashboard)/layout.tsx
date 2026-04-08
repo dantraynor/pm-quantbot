@@ -1,3 +1,5 @@
+import { LogoutButton } from '@/components/LogoutButton';
+import { getAppDisplayName } from '@/lib/branding';
 import Link from 'next/link';
 
 const NAV_ITEMS = [
@@ -28,14 +30,18 @@ function SidebarHealthPlaceholder() {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const appName = getAppDisplayName();
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Left sidebar */}
       <aside className="w-48 flex flex-col border-r border-bb-border bg-bb-bg shrink-0">
-        {/* Top bar branding */}
-        <div className="px-3 py-3 border-b border-bb-border">
-          <div className="text-[11px] font-bold text-bb-orange tracking-wider">DOHA TERMINAL</div>
-          <div className="text-[10px] text-bb-dim mt-0.5">Polymarket HFT</div>
+        {/* Top bar branding + logout */}
+        <div className="px-3 py-3 border-b border-bb-border flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="text-[11px] font-bold text-bb-orange tracking-wider">{appName}</div>
+            <div className="text-[10px] text-bb-dim mt-0.5">Polymarket</div>
+          </div>
+          <LogoutButton className="shrink-0 px-2 py-1 text-[10px] uppercase tracking-wider text-bb-dim hover:text-bb-red border border-transparent hover:border-bb-border disabled:opacity-50" />
         </div>
 
         {/* Navigation */}
