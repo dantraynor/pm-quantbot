@@ -4,6 +4,14 @@ Demo mode is the fastest way to understand the project without connecting a wall
 
 ## Start
 
+Beginner menu:
+
+```bash
+make start
+```
+
+Direct command:
+
 ```bash
 make doctor
 make demo

@@ -34,6 +34,15 @@ else
   failures=$((failures + 1))
 fi
 
+if command -v docker >/dev/null 2>&1; then
+  if docker info >/dev/null 2>&1; then
+    printf "ok   %-18s running\n" "docker daemon"
+  else
+    printf "miss %-18s Open Docker Desktop, then rerun 'make start'\n" "docker daemon"
+    failures=$((failures + 1))
+  fi
+fi
+
 check_optional_cmd node "Needed only for local TypeScript service development"
 check_optional_cmd npm "Needed only for local TypeScript service development"
 check_optional_cmd cargo "Needed only for local Rust service development"
@@ -54,7 +63,8 @@ fi
 
 if [ "$failures" -gt 0 ]; then
   printf "\nDoctor found %s blocking issue(s).\n" "$failures"
+  printf "New users should run 'make start' after fixing the items above.\n"
   exit 1
 fi
 
-printf "\nReady. Try 'make demo' for the wallet-free dashboard.\n"
+printf "\nReady. New users should run 'make start'. Fast path: 'make demo'.\n"

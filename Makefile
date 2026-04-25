@@ -3,11 +3,14 @@
 COMPOSE_DEV := docker compose -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_DEMO := docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.demo.yml
 
-.PHONY: help doctor setup demo demo-logs demo-down up down ps logs build test
+.PHONY: help start doctor setup demo demo-logs demo-down up down ps logs build test
 
 help: ## Show common commands
 	@awk 'BEGIN {FS = ":.*##"; printf "\nPolymarket Research Terminal\n\n"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@printf "\nStart here: make demo\n"
+	@printf "\nNew here? Run: make start\n"
+
+start: ## Beginner-friendly setup menu
+	@bash scripts/start-here.sh
 
 doctor: ## Check local tooling and configuration
 	@bash scripts/doctor.sh

@@ -18,13 +18,27 @@ It is designed to be useful in three ways:
 
 This project does not include accounts, wallets, API keys, or financial advice. Trading is disabled by default.
 
+## New Here? Start Here
+
+If you are not a developer or have never used Docker before, use the guided beginner flow:
+
+```bash
+git clone https://github.com/dantraynor/algorithmic-trading-polymarket.git
+cd algorithmic-trading-polymarket
+make start
+```
+
+Choose option `1` for the safe demo. It uses fake data, needs no wallet, and cannot place trades.
+
+Full walkthrough: [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+
 ## Quick Demo
 
 Run the dashboard with synthetic data. No wallet, no API keys, no live order flow.
 
 ```bash
-git clone https://github.com/<your-org>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/dantraynor/algorithmic-trading-polymarket.git
+cd algorithmic-trading-polymarket
 
 make doctor
 make demo
@@ -195,6 +209,7 @@ More detail: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Docs
 
+- [Beginner guide](docs/BEGINNER_GUIDE.md)
 - [Demo mode](docs/DEMO_MODE.md)
 - [Configuration guide](docs/CONFIGURATION.md)
 - [Safety guide](docs/SAFETY.md)

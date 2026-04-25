@@ -4,6 +4,7 @@
   "private": true,
   "description": "Open-source infrastructure for researching, simulating, monitoring, and safely operating Polymarket strategies.",
   "scripts": {
+    "start:here": "make start",
     "doctor": "make doctor",
     "demo": "make demo",
     "demo:down": "make demo-down",
