@@ -11,11 +11,11 @@ interface Props {
 
 const COLUMNS = [
   { key: 'name', label: 'Market', align: 'left' as const },
-  { key: 'yesBestBid', label: 'Y Bid', align: 'right' as const },
-  { key: 'yesBestAsk', label: 'Y Ask', align: 'right' as const },
-  { key: 'noBestBid', label: 'N Bid', align: 'right' as const },
-  { key: 'noBestAsk', label: 'N Ask', align: 'right' as const },
-  { key: 'sum', label: 'Sum', align: 'right' as const },
+  { key: 'yesBestBid', label: 'Y · Bid', align: 'right' as const },
+  { key: 'yesBestAsk', label: 'Y · Ask', align: 'right' as const },
+  { key: 'noBestBid', label: 'N · Bid', align: 'right' as const },
+  { key: 'noBestAsk', label: 'N · Ask', align: 'right' as const },
+  { key: 'sum', label: 'Σ', align: 'right' as const },
   { key: 'edge', label: 'Edge', align: 'right' as const },
 ];
 
@@ -26,7 +26,7 @@ function formatPrice(v: number): string {
 export function ArbMarketsTable({ markets, selectedMarket, onSelectMarket }: Props) {
   const rows = markets.map((m) => ({
     id: m.id,
-    name: m.name.length > 32 ? m.name.slice(0, 30) + '...' : m.name,
+    name: m.name.length > 36 ? m.name.slice(0, 34) + '…' : m.name,
     yesBestBid: formatPrice(m.yesBestBid),
     yesBestAsk: formatPrice(m.yesBestAsk),
     noBestBid: formatPrice(m.noBestBid),
@@ -39,10 +39,17 @@ export function ArbMarketsTable({ markets, selectedMarket, onSelectMarket }: Pro
     ),
   }));
 
+  const right = (
+    <span className="text-[9px] uppercase tracking-wider3 text-bb-dim num">
+      {markets.length} <span className="text-bb-muted">tracked</span>
+    </span>
+  );
+
   return (
-    <Panel title="Arb Markets" live>
+    <Panel title="Arb Markets" live index="III" right={right}>
       {markets.length === 0 ? (
-        <div className="flex items-center justify-center h-16 text-bb-dim text-[10px] uppercase">
+        <div className="flex items-center justify-center h-16 text-bb-dim text-[10px] uppercase tracking-wider">
+          <span className="display text-bb-dim text-[14px] mr-2">∅</span>
           Waiting for market data
         </div>
       ) : (
@@ -51,6 +58,7 @@ export function ArbMarketsTable({ markets, selectedMarket, onSelectMarket }: Pro
           rows={rows}
           selectedKey={selectedMarket}
           onRowClick={(row) => onSelectMarket?.(row.id)}
+          numbered
         />
       )}
     </Panel>

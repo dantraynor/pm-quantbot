@@ -6,25 +6,37 @@ interface Props {
   right?: ReactNode;
   className?: string;
   children: ReactNode;
+  index?: string;
 }
 
-export function Panel({ title, live, right, className, children }: Props) {
+export function Panel({ title, live, right, className, children, index }: Props) {
   return (
-    <div className={`border border-bb-border bg-bb-panel ${className ?? ''}`}>
+    <section className={`relative border border-bb-border bg-bb-panel ${className ?? ''}`}>
       {title && (
-        <div className="flex items-center justify-between px-2 py-1 border-b border-bb-border">
-          <div className="flex items-center gap-1.5">
-            {live && (
-              <span className="w-1.5 h-1.5 bg-bb-green bb-blink" />
+        <header className="flex items-center justify-between px-3 py-1.5 border-b border-bb-border bg-bb-panel2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {live ? (
+              <span className="relative flex items-center justify-center w-2 h-2">
+                <span className="absolute inset-0 bg-bb-green bb-pulse" />
+                <span className="relative w-1.5 h-1.5 bg-bb-green" />
+              </span>
+            ) : (
+              <span className="w-1 h-1 bg-bb-muted" />
             )}
-            <span className="text-[10px] uppercase tracking-wider text-bb-cyan font-medium">
+            {index && (
+              <span className="display text-bb-paper text-[14px] leading-none -mt-0.5">
+                {index}
+              </span>
+            )}
+            <span className="text-[10px] uppercase tracking-wider3 text-bb-paper font-semibold truncate">
               {title}
             </span>
+            <span className="hidden md:block flex-1 h-px bg-bb-muted/60 ml-2 mr-2" />
           </div>
-          {right && <div className="flex items-center gap-1.5">{right}</div>}
-        </div>
+          {right && <div className="flex items-center gap-2 shrink-0">{right}</div>}
+        </header>
       )}
-      {children}
-    </div>
+      <div>{children}</div>
+    </section>
   );
 }
