@@ -5,21 +5,49 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   gitleaks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      # Per-service GitHub Actions layer cache, derived from the compose files so new services are picked up automatically.
+      - name: Resolve bake cache settings
+        id: cache
+        run: |
+          {
+            echo 'set<<EOF'
+            docker buildx bake -f docker-compose.yml -f docker-compose.dev.yml --print | jq -r '.target | keys[] |
+              "\(.).cache-from=type=gha,scope=\(.)",
+              "\(.).cache-to=type=gha,scope=\(.),mode=max"'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
       - name: Build all images
-        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml build
+        uses: docker/bake-action@v7
+        with:
+          source: .
+          files: |
+            docker-compose.yml
+            docker-compose.dev.yml
+          set: ${{ steps.cache.outputs.set }}
