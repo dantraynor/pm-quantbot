@@ -3,55 +3,55 @@
 services:
   ingestion:
     build:
-      context: ./ingestion
+      context: ./services/market-data/ingestion
       dockerfile: Dockerfile
 
   signal-core:
     build:
-      context: ./signal-core
+      context: ./services/market-data/signal-core
       dockerfile: Dockerfile
 
   execution:
     build:
-      context: ./execution
+      context: ./services/trading/execution
       dockerfile: Dockerfile
 
   settlement:
     build:
-      context: ./settlement
+      context: ./services/trading/settlement
       dockerfile: Dockerfile
 
   btc-5m:
     build:
-      context: ./btc-5m
+      context: ./services/strategies/btc-5m
       dockerfile: Dockerfile
 
   btc-5m-momentum:
     build:
-      context: ./btc-5m-momentum
+      context: ./services/strategies/btc-5m-momentum
       dockerfile: Dockerfile
 
   btc-5m-latency:
     build:
-      context: ./btc-5m-latency
+      context: ./services/strategies/btc-5m-latency
       dockerfile: Dockerfile
 
   crypto-signals:
     build:
       context: .
-      dockerfile: crypto-signals/Dockerfile
+      dockerfile: services/strategies/crypto-signals/Dockerfile
 
   alpha-executor:
     build:
       context: .
-      dockerfile: alpha-executor/Dockerfile
+      dockerfile: services/trading/alpha-executor/Dockerfile
 
   sports-signals:
     build:
       context: .
-      dockerfile: sports-signals/Dockerfile
+      dockerfile: services/strategies/sports-signals/Dockerfile
 
   dashboard:
     build:
-      context: ./dashboard
+      context: ./apps/dashboard
       dockerfile: Dockerfile

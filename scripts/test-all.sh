@@ -4,61 +4,65 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 run_npm() {
-  local service="$1"
+  local service_path="$1"
+  local label="${2:-$service_path}"
 
-  if [ ! -f "$ROOT/$service/package.json" ]; then
+  if [ ! -f "$ROOT/$service_path/package.json" ]; then
     return
   fi
 
-  printf "\n==> %s: npm checks\n" "$service"
-  if [ ! -d "$ROOT/$service/node_modules" ]; then
-    npm --prefix "$ROOT/$service" ci
+  printf "\n==> %s: npm checks\n" "$label"
+  if [ ! -d "$ROOT/$service_path/node_modules" ]; then
+    npm --prefix "$ROOT/$service_path" ci
   fi
 
   local scripts
-  scripts="$(npm --prefix "$ROOT/$service" run 2>/dev/null || true)"
+  scripts="$(npm --prefix "$ROOT/$service_path" run 2>/dev/null || true)"
   if grep -q " build" <<<"$scripts"; then
-    npm --prefix "$ROOT/$service" run build
+    npm --prefix "$ROOT/$service_path" run build
   fi
   if grep -q " test" <<<"$scripts"; then
-    case "$service" in
+    case "$label" in
       btc-5m-latency|btc-5m-momentum)
-        npm --prefix "$ROOT/$service" test -- --runInBand
+        npm --prefix "$ROOT/$service_path" test -- --runInBand
         ;;
       *)
-        npm --prefix "$ROOT/$service" test
+        npm --prefix "$ROOT/$service_path" test
         ;;
     esac
   fi
 }
 
 run_cargo() {
-  local service="$1"
+  local service_path="$1"
+  local label="${2:-$service_path}"
 
-  if [ ! -f "$ROOT/$service/Cargo.toml" ]; then
+  if [ ! -f "$ROOT/$service_path/Cargo.toml" ]; then
     return
   fi
 
-  printf "\n==> %s: cargo test\n" "$service"
-  cargo test --manifest-path "$ROOT/$service/Cargo.toml"
+  printf "\n==> %s: cargo test\n" "$label"
+  cargo test --manifest-path "$ROOT/$service_path/Cargo.toml"
 }
 
-run_cargo ingestion
-run_cargo signal-core
+run_cargo services/market-data/ingestion ingestion
+run_cargo services/market-data/signal-core signal-core
 
-for service in \
-  shared \
-  execution \
-  settlement \
-  btc-5m \
-  btc-5m-momentum \
-  btc-5m-latency \
-  crypto-signals \
-  sports-signals \
-  alpha-executor \
-  dashboard
+for entry in \
+  "packages/shared:shared" \
+  "services/trading/execution:execution" \
+  "services/trading/settlement:settlement" \
+  "services/strategies/btc-5m:btc-5m" \
+  "services/strategies/btc-5m-momentum:btc-5m-momentum" \
+  "services/strategies/btc-5m-latency:btc-5m-latency" \
+  "services/strategies/crypto-signals:crypto-signals" \
+  "services/strategies/sports-signals:sports-signals" \
+  "services/trading/alpha-executor:alpha-executor" \
+  "apps/dashboard:dashboard"
 do
-  run_npm "$service"
+  path="${entry%%:*}"
+  name="${entry##*:}"
+  run_npm "$path" "$name"
 done
 
 printf "\nAll configured checks completed.\n"

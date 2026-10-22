@@ -34,11 +34,11 @@ make down
 Individual services:
 
 ```bash
-cd ingestion && cargo test
-cd signal-core && cargo test
+cd services/market-data/ingestion && cargo test
+cd services/market-data/signal-core && cargo test
 
-cd dashboard && npm ci && npm run build && npm test
-cd alpha-executor && npm ci && npm run build && npm test
+cd apps/dashboard && npm ci && npm run build && npm test
+cd services/trading/alpha-executor && npm ci && npm run build && npm test
 ```
 
 ## Code Conventions
@@ -51,12 +51,12 @@ cd alpha-executor && npm ci && npm run build && npm test
 
 ## Adding A Strategy
 
-1. Create a service directory.
+1. Create a service under `services/strategies/` (or the appropriate `services/` group).
 2. Add a config module with safe defaults.
 3. Read market data from Redis or a documented external feed.
 4. Publish typed signals to Redis.
 5. Gate execution behind dry-run mode and kill switches.
-6. Register dashboard metadata in `dashboard/src/lib/strategy-registry.ts`.
+6. Register dashboard metadata in `apps/dashboard/src/lib/strategy-registry.ts`.
 7. Add tests and docs.
 
 ## Pull Requests

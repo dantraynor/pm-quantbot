@@ -4,16 +4,20 @@
 
 This is a multi-service prediction-market research and execution stack.
 
-- `ingestion` - Rust WebSocket consumer for Polymarket order books
-- `signal-core` - Rust arbitrage scanner
-- `execution` - TypeScript CLOB order execution
-- `settlement` - TypeScript position merge and settlement helper
-- `btc-5m*` - BTC 5-minute strategy variants
-- `crypto-signals` - multi-asset crypto signal publisher
-- `sports-signals` - sports signal publisher
-- `alpha-executor` - portfolio-aware signal execution and risk
-- `dashboard` - Next.js monitoring and controls
-- `shared` - common types, Redis keys, and SQLite helpers
+### Repository layout
+
+- `apps/dashboard` - Next.js monitoring and controls
+- `packages/shared` - common types, Redis keys, and SQLite helpers
+- `services/market-data/ingestion` - Rust WebSocket consumer for Polymarket order books
+- `services/market-data/signal-core` - Rust arbitrage scanner
+- `services/trading/execution` - TypeScript CLOB order execution
+- `services/trading/settlement` - TypeScript position merge and settlement helper
+- `services/trading/alpha-executor` - portfolio-aware signal execution and risk
+- `services/strategies/btc-5m*` - BTC 5-minute strategy variants
+- `services/strategies/crypto-signals` - multi-asset crypto signal publisher
+- `services/strategies/sports-signals` - sports signal publisher
+
+Docker Compose service names (`ingestion`, `dashboard`, etc.) match the logical service names, not necessarily the folder depth.
 
 ## Safety Defaults
 
