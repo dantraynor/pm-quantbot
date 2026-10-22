@@ -1,6 +1,6 @@
 # Polymarket Research Terminal
 
-> Open-source infrastructure for researching, simulating, monitoring, and safely operating Polymarket strategies.
+Open-source stack for researching, simulating, monitoring, and running Polymarket strategies.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
@@ -8,19 +8,13 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue)
 ![Mode](https://img.shields.io/badge/default-safe_demo-purple)
 
-This repository is a full-stack prediction-market research lab: real-time market ingestion, strategy engines, risk controls, paper/live execution plumbing, settlement helpers, monitoring, and a Next.js trading terminal.
+Rust ingestion, TypeScript strategy services, Redis streams, SQLite analytics, Docker Compose, and a Next.js terminal. Paper and dry-run defaults; live execution is opt-in with Redis kill switches.
 
-It is designed to be useful in three ways:
+No bundled accounts, wallets, or API keys. Not financial advice. Trading is off by default.
 
-- **Curious users** can run a wallet-free local demo in a couple of minutes.
-- **Builders** can fork the strategy template, add a signal, and see it in the dashboard.
-- **Operators** can run the full Docker stack with fail-closed kill switches and paper mode before enabling live execution.
+## Start here
 
-This project does not include accounts, wallets, API keys, or financial advice. Trading is disabled by default.
-
-## New Here? Start Here
-
-If you are not a developer or have never used Docker before, use the guided beginner flow:
+Never used Docker:
 
 ```bash
 git clone https://github.com/dantraynor/algorithmic-trading-polymarket.git
@@ -28,13 +22,13 @@ cd algorithmic-trading-polymarket
 make start
 ```
 
-Choose option `1` for the safe demo. It uses fake data, needs no wallet, and cannot place trades.
+Pick `1` (safe demo): synthetic data, no wallet, no orders.
 
-Full walkthrough: [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+Walkthrough: [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
 
-## Quick Demo
+## Quick demo
 
-Run the dashboard with synthetic data. No wallet, no API keys, no live order flow.
+Dashboard only, synthetic feed. No wallet, no API keys, no execution services.
 
 ```bash
 git clone https://github.com/dantraynor/algorithmic-trading-polymarket.git
@@ -44,29 +38,28 @@ make doctor
 make demo
 ```
 
-Open [http://127.0.0.1:3001](http://127.0.0.1:3001) and sign in with:
+Open [http://127.0.0.1:3001](http://127.0.0.1:3001). Sign in:
 
 ```text
 demo_dashboard_secret
 ```
 
-Stop it with:
+Stop:
 
 ```bash
 make demo-down
 ```
 
-The demo starts only Redis, the dashboard, and a synthetic data feeder. Execution services are not started.
+### Demo vs full stack
 
-## Includes
+| | Demo (`make demo`) | Full stack (`make up`) |
+| --- | --- | --- |
+| Data | Synthetic | Live market feeds |
+| Services | `demo-seed`, Redis, dashboard | Ingestion, strategies, execution, settlement, dashboard |
+| Orders | Cannot place orders | Paper / dry run by default; live is opt-in |
+| Credentials | None | Depends on the services and trading mode |
 
-- **Real architecture** - Rust ingestion, TypeScript strategy services, Redis streams, SQLite analytics, Docker Compose, and CI.
-- **Safe first-run experience** - local demo, paper defaults, explicit live opt-in, global and per-strategy kill switches.
-- **Hackable strategy surface** - strategies publish typed Redis signals and show up in the dashboard through a registry entry.
-- **Production-shaped operations** - Docker images, GCP Terraform, GitHub Actions deployment, Grafana/Prometheus monitoring, runbooks.
-- **Readable codebase** - services are split by responsibility instead of hiding everything in one bot process.
-
-## What Is Included
+## Services
 
 | Area | Services |
 | --- | --- |
@@ -75,46 +68,54 @@ The demo starts only Redis, the dashboard, and a synthetic data feeder. Executio
 | Sports strategies | `sports-signals` |
 | Execution and risk | `execution`, `alpha-executor`, `settlement` |
 | UI and analytics | `dashboard`, `shared` |
-| Operations | Docker Compose, Terraform, Prometheus, Grafana, GitHub Actions |
+| Ops | Docker Compose, Terraform (GCP), Prometheus, Grafana, GitHub Actions |
+
+Local demo and paper defaults. Strategies publish typed Redis signals; the dashboard picks them up via `dashboard/src/lib/strategy-registry.ts`. CI, runbooks, and monitoring match a deployed layout.
 
 ## Architecture
 
-```text
-Polymarket WebSocket
-        |
-        v
-ingestion (Rust) ------ Redis order books / market state
-        |
-        +--> signal-core (Rust arbitrage scanner)
-        +--> btc-5m / latency / momentum strategies
-        +--> crypto-signals
-        +--> sports-signals
-                         |
-                         v
-                 Redis signal bus
-                         |
-          +--------------+--------------+
-          v                             v
-   execution engine              alpha-executor
-          |                             |
-          +--------------+--------------+
-                         v
-                    settlement
+### Shared signal flow
 
-dashboard reads Redis, SQLite, and optional on-chain balances
+`ingestion` writes Polymarket order books to Redis. Two signal pipelines feed the shared execution services:
+
+```mermaid
+flowchart TB
+  books["Redis order books"] --> arb["signal-core"]
+  feeds["Crypto + sports feeds"] --> signals["crypto-signals<br/>sports-signals"]
+  arb -->|Redis signals| execution["execution"]
+  signals -->|Redis signals| alpha["alpha-executor"]
+  execution --> clob["Polymarket CLOB"]
+  alpha --> clob
 ```
 
-## Full Stack Setup
+BTC strategy services handle their own risk checks and execution. `settlement` separately merges positions on Polygon. The dashboard reads Redis, SQLite, and optional on-chain balances.
 
-Use this path when you want paper trading or live-ready infrastructure.
+### Order decision
+
+Simplified decision flow. Checks include freshness, enable flags, and risk limits; the exact checks and their order vary by service.
+
+```mermaid
+flowchart LR
+  signal["Signal"] --> checks{"Checks pass?"}
+  checks -->|No| skip["Skip"]
+  checks -->|Yes| mode{"Dry run?"}
+  mode -->|Yes| simulate["Simulate"]
+  mode -->|No| order["Place order"]
+```
+
+Dry runs never submit orders. See [Safety](#safety) for the control layers.
+
+## Full stack
+
+For paper trading or live-ready infra.
 
 ### Prerequisites
 
 - Docker Desktop or Docker Engine with Compose v2
-- Node.js 20+ for local TypeScript development
-- Rust stable for local Rust development
-- A Polygon RPC URL for live/paper strategy services that need chain reads
-- Wallet, Safe, and Polymarket CLOB credentials only if you intend to execute orders
+- Node.js 20+ (local TS work)
+- Rust stable (local Rust work)
+- Polygon RPC URL for services that read chain state
+- Wallet, Safe, and Polymarket CLOB credentials only if you will send orders
 
 ### Configure
 
@@ -122,9 +123,9 @@ Use this path when you want paper trading or live-ready infrastructure.
 make setup
 ```
 
-Then edit `.env`. Keep all `*_DRY_RUN=true` values while testing.
+Edit `.env`. Keep `*_DRY_RUN=true` while testing.
 
-To derive CLOB credentials from a funded/authorized key:
+Derive CLOB credentials from a funded key:
 
 ```bash
 cd scripts
@@ -132,7 +133,7 @@ npm install
 PRIVATE_KEY=0x... node derive-keys.js
 ```
 
-Add the printed `CLOB_API_KEY`, `CLOB_API_SECRET`, and `CLOB_PASSPHRASE` to `.env`.
+Put `CLOB_API_KEY`, `CLOB_API_SECRET`, and `CLOB_PASSPHRASE` in `.env`.
 
 ### Run
 
@@ -142,15 +143,11 @@ make ps
 make logs
 ```
 
-Dashboard:
+Dashboard: [http://127.0.0.1:3001](http://127.0.0.1:3001)
 
-```text
-http://127.0.0.1:3001
-```
+### Enable trading
 
-### Enable Trading
-
-Trading is fail-closed. Missing switches mean no trading.
+Missing switches means no trading.
 
 ```bash
 # Global enable
@@ -160,32 +157,32 @@ docker exec tradingbot-redis redis-cli -s /var/run/redis/redis.sock SET TRADING_
 docker exec tradingbot-redis redis-cli -s /var/run/redis/redis.sock DEL TRADING_ENABLED
 ```
 
-Each strategy also has its own switch, for example `BTC_5M_LATENCY_TRADING_ENABLED` and `ALPHA_TRADING_ENABLED`. The global switch and the strategy switch must both be enabled.
+Each strategy has its own flag (e.g. `BTC_5M_LATENCY_TRADING_ENABLED`, `ALPHA_TRADING_ENABLED`). Global and strategy flags must both be on.
 
-## Safety Model
+## Safety
 
 | Layer | Behavior |
 | --- | --- |
 | Demo mode | No execution services, synthetic data only |
-| Dry run | Strategy logic runs, orders are not sent |
-| Kill switches | Global and per-strategy Redis flags must be explicitly enabled |
-| Risk caps | Max size, slippage, drawdown, streak, and exposure controls |
-| Freshness checks | Stale signals and corrupt order books are discarded |
-| Deployment hygiene | Secrets live in `.env` or Secret Manager, never in the repo |
+| Dry run | Logic runs, orders not sent |
+| Kill switches | Global and per-strategy Redis flags |
+| Risk caps | Size, slippage, drawdown, streak, exposure |
+| Freshness | Stale signals and bad books dropped |
+| Secrets | `.env` or Secret Manager, not the repo |
 
-See [docs/SAFETY.md](docs/SAFETY.md) for operator guidance.
+[docs/SAFETY.md](docs/SAFETY.md) for operators.
 
-## Developer Workflow
+## Developer workflow
 
 ```bash
 make doctor      # verify tools
 make demo        # dashboard-only demo
 make up          # full local stack
-make test        # run configured service tests
+make test        # configured service tests
 make down        # stop full stack
 ```
 
-Build individual services:
+Build one service:
 
 ```bash
 cd ingestion && cargo build --release
@@ -195,50 +192,41 @@ cd btc-5m-latency && npm ci && npm run build && npm test
 cd dashboard && npm ci && npm run build && npm test
 ```
 
-## Add A Strategy
+## Add a strategy
 
-1. Create a service directory with `src/index.ts` or Rust equivalent.
-2. Read market data from Redis or an external feed.
-3. Publish a typed signal to a Redis channel such as `signals:alpha`.
-4. Add a risk gate or reuse `alpha-executor`.
-5. Add the service to Docker Compose.
-6. Register it in `dashboard/src/lib/strategy-registry.ts`.
-7. Add tests for signal generation and risk behavior.
+1. New service dir with `src/index.ts` (or Rust equivalent).
+2. Read Redis or an external feed.
+3. Publish typed signals (e.g. `signals:alpha`).
+4. Reuse or add a risk gate (`alpha-executor`).
+5. Wire into Docker Compose.
+6. Register in `dashboard/src/lib/strategy-registry.ts`.
+7. Tests for signals and risk.
 
-More detail: [CONTRIBUTING.md](CONTRIBUTING.md).
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Docs
 
 - [Beginner guide](docs/BEGINNER_GUIDE.md)
 - [Demo mode](docs/DEMO_MODE.md)
-- [Configuration guide](docs/CONFIGURATION.md)
-- [Safety guide](docs/SAFETY.md)
-- [Deployment runbook](docs/DEPLOY_RUNBOOK.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Safety](docs/SAFETY.md)
+- [Deploy runbook](docs/DEPLOY_RUNBOOK.md)
 - [Wallet setup](docs/WALLET_SETUP.md)
 - [Roadmap](docs/ROADMAP.md)
 
-## Project Structure
+## Layout
 
-```text
-.
-├── dashboard/          Next.js terminal UI
-├── ingestion/          Rust WebSocket order book consumer
-├── signal-core/        Rust arbitrage scanner
-├── execution/          TypeScript CLOB order execution
-├── settlement/         Position merge and settlement helper
-├── alpha-executor/     Unified alpha execution and portfolio risk
-├── btc-5m*/            BTC 5-minute strategy variants
-├── crypto-signals/     Multi-asset crypto signal service
-├── sports-signals/     NBA/NCAA signal service
-├── shared/             Shared types, Redis keys, SQLite helpers
-├── infrastructure/     Terraform, Redis, monitoring
-├── scripts/            Setup, demo, and utility scripts
-└── docs/               Operator and contributor documentation
-```
+| Role | Folders |
+| --- | --- |
+| Terminal | `dashboard/` |
+| Ingestion and arbitrage | `ingestion/`, `signal-core/` |
+| Strategies | `btc-5m*/`, `crypto-signals/`, `sports-signals/` |
+| Execution and settlement | `execution/`, `alpha-executor/`, `settlement/` |
+| Shared types and storage | `shared/` |
+| Infrastructure and tooling | `infrastructure/`, `scripts/` |
+| Guides and runbooks | `docs/` |
 
-## Responsible Use
-
-Prediction markets and automated trading involve financial, legal, and operational risk. Use this software only where permitted, start with demo or paper mode, review every strategy before running it, and never commit secrets.
+Prediction markets and automation carry financial, legal, and ops risk. Use where allowed; start demo or paper; review strategies; do not commit secrets.
 
 ## License
 
