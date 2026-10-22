@@ -70,7 +70,7 @@ make demo-down
 | UI and analytics | `dashboard`, `shared` |
 | Ops | Docker Compose, Terraform (GCP), Prometheus, Grafana, GitHub Actions |
 
-Local demo and paper defaults. Strategies publish typed Redis signals; the dashboard picks them up via `dashboard/src/lib/strategy-registry.ts`. CI, runbooks, and monitoring match a deployed layout.
+Local demo and paper defaults. Strategies publish typed Redis signals; the dashboard picks them up via `apps/dashboard/src/lib/strategy-registry.ts`. CI, runbooks, and monitoring match a deployed layout.
 
 ## Architecture
 
@@ -185,11 +185,11 @@ make down        # stop full stack
 Build one service:
 
 ```bash
-cd ingestion && cargo build --release
-cd signal-core && cargo build --release
+cd services/market-data/ingestion && cargo build --release
+cd services/market-data/signal-core && cargo build --release
 
-cd btc-5m-latency && npm ci && npm run build && npm test
-cd dashboard && npm ci && npm run build && npm test
+cd services/strategies/btc-5m-latency && npm ci && npm run build && npm test
+cd apps/dashboard && npm ci && npm run build && npm test
 ```
 
 ## Add a strategy
@@ -199,7 +199,7 @@ cd dashboard && npm ci && npm run build && npm test
 3. Publish typed signals (e.g. `signals:alpha`).
 4. Reuse or add a risk gate (`alpha-executor`).
 5. Wire into Docker Compose.
-6. Register in `dashboard/src/lib/strategy-registry.ts`.
+6. Register in `apps/dashboard/src/lib/strategy-registry.ts`.
 7. Tests for signals and risk.
 
 [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -216,15 +216,17 @@ cd dashboard && npm ci && npm run build && npm test
 
 ## Layout
 
-| Role | Folders |
+| Role | Location |
 | --- | --- |
-| Terminal | `dashboard/` |
-| Ingestion and arbitrage | `ingestion/`, `signal-core/` |
-| Strategies | `btc-5m*/`, `crypto-signals/`, `sports-signals/` |
-| Execution and settlement | `execution/`, `alpha-executor/`, `settlement/` |
-| Shared types and storage | `shared/` |
+| Terminal UI | `apps/dashboard/` |
+| Shared TypeScript library | `packages/shared/` |
+| Market data (Rust) | `services/market-data/ingestion/`, `services/market-data/signal-core/` |
+| Strategy services | `services/strategies/` (`btc-5m*`, `crypto-signals`, `sports-signals`) |
+| Execution and settlement | `services/trading/` (`execution`, `alpha-executor`, `settlement`) |
 | Infrastructure and tooling | `infrastructure/`, `scripts/` |
 | Guides and runbooks | `docs/` |
+
+Root-level Docker Compose files and the Makefile orchestrate the tree above; Compose service names (for example `ingestion`, `dashboard`) are unchanged.
 
 Prediction markets and automation carry financial, legal, and ops risk. Use where allowed; start demo or paper; review strategies; do not commit secrets.
 
