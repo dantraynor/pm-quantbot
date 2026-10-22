@@ -1,7 +1,7 @@
 # Wallet-free local demo.
 #
 # Usage:
-#   docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.demo.yml \
+#   docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml -f infrastructure/compose/demo.yml \
 #     up -d --build redis dashboard demo-seed
 #
 # This starts only Redis, the dashboard, and a synthetic data feeder. It never starts

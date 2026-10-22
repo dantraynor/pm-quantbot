@@ -60,7 +60,7 @@ CLOB_PASSPHRASE=<your-passphrase>
 Add these to `/opt/tradingbot/.env`.
 
 ### Using the first-run setup script:
-The `first-run-setup.sh` script automates this — it reads `PRIVATE_KEY` from `.env`, derives the keys, and updates the `.env` file automatically.
+The `scripts/first-run-setup.sh` script automates this — it reads `PRIVATE_KEY` from `.env`, derives the keys, and updates the `.env` file automatically.
 
 ## 5. Environment Variables Checklist
 

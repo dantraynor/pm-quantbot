@@ -38,7 +38,7 @@ jobs:
         run: |
           {
             echo 'set<<EOF'
-            docker buildx bake -f docker-compose.yml -f docker-compose.dev.yml --print | jq -r '.target | keys[] |
+            docker buildx bake -f docker-compose.yml -f infrastructure/compose/dev.yml --print | jq -r '.target | keys[] |
               "\(.).cache-from=type=gha,scope=\(.)",
               "\(.).cache-to=type=gha,scope=\(.),mode=max"'
             echo 'EOF'
@@ -49,5 +49,5 @@ jobs:
           source: .
           files: |
             docker-compose.yml
-            docker-compose.dev.yml
+            infrastructure/compose/dev.yml
           set: ${{ steps.cache.outputs.set }}

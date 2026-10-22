@@ -202,7 +202,7 @@ cd apps/dashboard && npm ci && npm run build && npm test
 6. Register in `apps/dashboard/src/lib/strategy-registry.ts`.
 7. Tests for signals and risk.
 
-[CONTRIBUTING.md](CONTRIBUTING.md).
+[CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Docs
 

@@ -1,6 +1,6 @@
 # Base configuration — must be used with an override file:
-#   Dev:  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-#   Prod: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   Dev:  docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml up -d --build
+#   Prod: docker compose -f docker-compose.yml -f infrastructure/compose/prod.yml up -d
 #
 # Optional `.env` (copy from `.env.example`): loaded when present; compose still parses without it.
 x-env-file-optional: &env-file-optional
