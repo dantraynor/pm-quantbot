@@ -1,5 +1,5 @@
 # Production: pulls pre-built images from GCP Artifact Registry
-# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Usage: docker compose -f docker-compose.yml -f infrastructure/compose/prod.yml up -d
 services:
   ingestion:
     image: ${REGISTRY_PREFIX}/ingestion:${IMAGE_TAG:-latest}

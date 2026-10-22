@@ -90,7 +90,7 @@ scp -i ~/.ssh/tradingbot-deploy .env ubuntu@<INSTANCE_IP>:/opt/tradingbot/.env
 # On the instance: run first-time setup
 ssh -i ~/.ssh/tradingbot-deploy ubuntu@<INSTANCE_IP>
 chmod 600 /opt/tradingbot/.env
-/opt/tradingbot/first-run-setup.sh
+/opt/tradingbot/scripts/first-run-setup.sh
 ```
 
 ## Step 6: Verify Services
@@ -172,6 +172,6 @@ cd /opt/tradingbot
 
 # Roll back to a specific version (REGISTRY_PREFIX is already in .env from last deploy)
 sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=<previous-git-sha>/' .env
-docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f infrastructure/compose/prod.yml pull
+docker compose -f docker-compose.yml -f infrastructure/compose/prod.yml up -d
 ```

@@ -54,10 +54,10 @@ else
   printf "warn %-18s not found; run 'make setup' before full-stack live/paper runs\n" ".env"
 fi
 
-if [ -f docker-compose.demo.yml ]; then
+if [ -f infrastructure/compose/demo.yml ]; then
   printf "ok   %-18s available\n" "demo compose"
 else
-  printf "miss %-18s docker-compose.demo.yml missing\n" "demo compose"
+  printf "miss %-18s infrastructure/compose/demo.yml missing\n" "demo compose"
   failures=$((failures + 1))
 fi
 

@@ -58,7 +58,7 @@ echo "Step 2: Building and starting services..."
 echo ""
 
 cd /opt/tradingbot
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f infrastructure/compose/prod.yml up -d
 
 echo ""
 echo "Step 3: Verifying deployment..."

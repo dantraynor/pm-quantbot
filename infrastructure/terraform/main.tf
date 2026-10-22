@@ -255,12 +255,12 @@ resource "google_compute_instance" "tradingbot" {
       echo performance > $cpu 2>/dev/null || true
     done
 
-    # first-run-setup.sh is deployed from the repo via CI/CD
-    # It will be available at /opt/tradingbot/first-run-setup.sh after first deploy
-    chmod +x /opt/tradingbot/first-run-setup.sh 2>/dev/null || true
+    # scripts/first-run-setup.sh is deployed from the repo via CI/CD
+    # It will be available at /opt/tradingbot/scripts/first-run-setup.sh after first deploy
+    chmod +x /opt/tradingbot/scripts/first-run-setup.sh 2>/dev/null || true
     chown -R ubuntu:ubuntu /opt/tradingbot
 
-    echo "Startup script complete. Run /opt/tradingbot/first-run-setup.sh after copying .env"
+    echo "Startup script complete. Run /opt/tradingbot/scripts/first-run-setup.sh after copying .env"
   EOF
 
   labels = {

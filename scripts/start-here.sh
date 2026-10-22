@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-COMPOSE_DEMO=(docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.demo.yml)
-COMPOSE_DEV=(docker compose -f docker-compose.yml -f docker-compose.dev.yml)
+COMPOSE_DEMO=(docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml -f infrastructure/compose/demo.yml)
+COMPOSE_DEV=(docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml)
 
 bold() {
   printf "\033[1m%s\033[0m\n" "$1"

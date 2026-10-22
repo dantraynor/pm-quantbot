@@ -1,5 +1,5 @@
 # Local development: builds from source
-# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+# Usage: docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml up -d --build
 services:
   ingestion:
     build:

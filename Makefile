@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
-COMPOSE_DEV := docker compose -f docker-compose.yml -f docker-compose.dev.yml
-COMPOSE_DEMO := docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.demo.yml
+COMPOSE_DEV := docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml
+COMPOSE_DEMO := docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml -f infrastructure/compose/demo.yml
 
 .PHONY: help start doctor setup demo demo-logs demo-down up down ps logs build test
 

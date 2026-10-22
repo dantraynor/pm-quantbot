@@ -41,7 +41,7 @@ docker exec tradingbot-redis redis-cli -s /var/run/redis/redis.sock DEL TRADING_
 For a harder stop:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml stop execution alpha-executor settlement
+docker compose -f docker-compose.yml -f infrastructure/compose/dev.yml stop execution alpha-executor settlement
 ```
 
 ## Risk Controls To Review
